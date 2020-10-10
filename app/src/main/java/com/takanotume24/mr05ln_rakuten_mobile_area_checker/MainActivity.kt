@@ -36,14 +36,24 @@ class MainActivity : AppCompatActivity() {
 
     private suspend fun myTask() {
         try {
-            val response: Deferred<Response> = "https://google.com".httpGetAsync()
+            val response: Deferred<Response> = "https://aterm.me".httpGetAsync()
             val domain_area = findViewById<EditText>(R.id.domainText)
             area_text.text = "now loading..."
             while (!response.isCompleted) {
                 Thread.sleep(100)
             }
             val result_view = findViewById<TextView>(R.id.area_text)
-            result_view.text = response.getCompleted().body?.string()
+            val result = response.getCompleted().body?.string()
+
+            if (result.isNullOrBlank()) return
+            if (result.contains("このサイトは、インターネット上のサーバーです。")) {
+                result_view.text = "ルーターへ到達できませんでした．"
+            } else {
+                result_view.text = result
+                print(result)
+            }
+
+
         } catch (e: Exception) {
             print(e.localizedMessage)
         }
