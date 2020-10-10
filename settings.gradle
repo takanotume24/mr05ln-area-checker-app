@@ -1,0 +1,2 @@
+include ':app'
+rootProject.name = "MR05LN-RakutenMobile-area-checker"
