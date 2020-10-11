@@ -1,4 +1,4 @@
-package com.takanotume24.mr05ln_rakuten_mobile_area_checker
+package com.takanotume24.mr05ln_area_checker
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

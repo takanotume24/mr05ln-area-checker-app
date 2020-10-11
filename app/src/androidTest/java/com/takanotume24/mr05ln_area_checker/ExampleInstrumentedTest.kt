@@ -1,4 +1,4 @@
-package com.takanotume24.mr05ln_rakuten_mobile_area_checker
+package com.takanotume24.mr05ln_area_checker
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry

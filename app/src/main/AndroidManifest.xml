@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.takanotume24.mr05ln_rakuten_mobile_area_checker">
+    package="com.takanotume24.mr05ln_area_checker">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name="com.takanotume24.mr05ln_area_checker.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
