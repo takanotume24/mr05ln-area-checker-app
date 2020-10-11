@@ -79,6 +79,7 @@ class MainActivity : AppCompatActivity() {
 
                             when (response.statusCode) {
                                 401 -> dialog.setMessage("認証に失敗しました． \nAtermのユーザー名もしくはパスワードが間違っていませんか？")
+                                404 -> dialog.setMessage("ルーターに接続できませんでした．\n・Aterm MR05LNに接続されていますか？\n・アドレスは間違っていませんか？")
                                 else -> dialog.setMessage(ex.localizedMessage)
                             }
                             dialog.show()
