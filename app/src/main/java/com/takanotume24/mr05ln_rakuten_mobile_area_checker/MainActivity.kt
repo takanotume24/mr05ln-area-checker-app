@@ -1,5 +1,6 @@
 package com.takanotume24.mr05ln_rakuten_mobile_area_checker
 
+import android.content.Context
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -20,6 +21,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val data_store = getSharedPreferences("data_store", Context.MODE_PRIVATE)
+        val address = findViewById<EditText>(R.id.router_address)
+        val user_name = findViewById<EditText>(R.id.router_username)
+        val password = findViewById<EditText>(R.id.router_password)
+        address.setText(data_store.getString("aterm_address", "aterm.me"))
+        user_name.setText(data_store.getString("aterm_user_name", "admin"))
+        password.setText(data_store.getString("aterm_password", ""))
     }
 
     override fun onResume() {
@@ -45,6 +54,12 @@ class MainActivity : AppCompatActivity() {
             val password = findViewById<EditText>(R.id.router_password)
             val get_area_text = findViewById<TextView>(R.id.get_area_text)
             val get_time_text = findViewById<TextView>(R.id.get_time_text)
+            val editor = getSharedPreferences("data_store", Context.MODE_PRIVATE).edit()
+
+            editor.putString("aterm_address", address.text.toString())
+            editor.putString("aterm_user_name", user_name.text.toString())
+            editor.putString("aterm_password", password.text.toString())
+            editor.apply()
 
             val url = "http://${address.text}/index.cgi/syslog_call_c.log"
 
