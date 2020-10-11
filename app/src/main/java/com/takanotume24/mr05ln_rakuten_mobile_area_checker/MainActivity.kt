@@ -5,10 +5,15 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import io.github.rybalkinsd.kohttp.ext.httpGetAsync
+import com.github.kittinunf.fuel.core.extensions.authentication
+import com.github.kittinunf.fuel.httpGet
+import com.github.kittinunf.result.Result
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.*
-import okhttp3.Response
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.launch
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     val scope = CoroutineScope(Dispatchers.Default)
@@ -36,23 +41,52 @@ class MainActivity : AppCompatActivity() {
 
     private suspend fun myTask() {
         try {
-            val response: Deferred<Response> = "https://aterm.me".httpGetAsync()
-            val domain_area = findViewById<EditText>(R.id.domainText)
-            area_text.text = "now loading..."
-            while (!response.isCompleted) {
-                Thread.sleep(100)
-            }
+            val address = findViewById<EditText>(R.id.router_address)
             val result_view = findViewById<TextView>(R.id.area_text)
-            val result = response.getCompleted().body?.string()
+            val user_name = findViewById<EditText>(R.id.router_username)
+            val password = findViewById<EditText>(R.id.router_password)
 
-            if (result.isNullOrBlank()) return
-            if (result.contains("このサイトは、インターネット上のサーバーです。")) {
-                result_view.text = "ルーターへ到達できませんでした．"
-            } else {
-                result_view.text = result
-                print(result)
-            }
+            area_text.text = Date().toString()
 
+            val url = "http://${address.text}/index.cgi/syslog_call_c.log"
+
+            val http_async = url
+                .httpGet()
+                .timeout(1000)
+                .authentication()
+                .basic(username = user_name.text.toString(), password = password.text.toString())
+                .responseString { request, response, result ->
+                    when (result) {
+                        is Result.Failure -> {
+                            val ex = result.getException()
+                            result_view.text = ex.localizedMessage
+                            println(ex)
+                        }
+                        is Result.Success -> {
+                            val data =
+                                result.get()
+                                    .lines()
+                                    .reversed()
+                                    .filter {
+                                        it.contains("earfcn")
+                                    }
+                            val earfcn = Regex("""(?<=earfcn=)[+-]?\d+""").find(data.first())?.value
+                            when (earfcn) {
+                                "1500" -> {
+                                    result_view.text = "楽天エリア"
+                                }
+                                "5900" -> {
+                                    result_view.text = "パートナーエリア"
+                                }
+                                else -> {
+                                    result_view.text = "判別不能 earfcn=${earfcn}"
+                                }
+                            }
+                            println(data.first())
+                        }
+                    }
+                }
+            http_async.join()
 
         } catch (e: Exception) {
             print(e.localizedMessage)
