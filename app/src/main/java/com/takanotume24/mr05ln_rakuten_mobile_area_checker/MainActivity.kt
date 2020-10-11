@@ -4,16 +4,15 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
     val scope = CoroutineScope(Dispatchers.Default)
@@ -42,11 +41,10 @@ class MainActivity : AppCompatActivity() {
     private suspend fun myTask() {
         try {
             val address = findViewById<EditText>(R.id.router_address)
-            val result_view = findViewById<TextView>(R.id.area_text)
             val user_name = findViewById<EditText>(R.id.router_username)
             val password = findViewById<EditText>(R.id.router_password)
-
-            area_text.text = Date().toString()
+            val get_area_text = findViewById<TextView>(R.id.get_area_text)
+            val get_time_text = findViewById<TextView>(R.id.get_time_text)
 
             val url = "http://${address.text}/index.cgi/syslog_call_c.log"
 
@@ -59,7 +57,16 @@ class MainActivity : AppCompatActivity() {
                     when (result) {
                         is Result.Failure -> {
                             val ex = result.getException()
-                            result_view.text = ex.localizedMessage
+                            val dialog = AlertDialog.Builder(this)
+                                .setTitle("取得失敗")
+                                .setPositiveButton("OK") { dialog, which -> }
+                                .create()
+
+                            when (response.statusCode) {
+                                401 -> dialog.setMessage("認証に失敗しました． \nAtermのユーザー名もしくはパスワードが間違っていませんか？")
+                                else -> dialog.setMessage(ex.localizedMessage)
+                            }
+                            dialog.show()
                             println(ex)
                         }
                         is Result.Success -> {
@@ -71,15 +78,21 @@ class MainActivity : AppCompatActivity() {
                                         it.contains("earfcn")
                                     }
                             val earfcn = Regex("""(?<=earfcn=)[+-]?\d+""").find(data.first())?.value
+                            val time =
+                                Regex("""[+-]?\d+-[+-]?\d+-[+-]?\d+ [+-]?\d+:[+-]?\d+:[+-]?\d+""").find(
+                                    data.first()
+                                )?.value
+                            get_time_text.text = time
+
                             when (earfcn) {
                                 "1500" -> {
-                                    result_view.text = "楽天エリア"
+                                    get_area_text.text = "楽天エリア"
                                 }
                                 "5900" -> {
-                                    result_view.text = "パートナーエリア"
+                                    get_area_text.text = "パートナーエリア"
                                 }
                                 else -> {
-                                    result_view.text = "判別不能 earfcn=${earfcn}"
+                                    get_area_text.text = "判別不能 earfcn=${earfcn}"
                                 }
                             }
                             println(data.first())
