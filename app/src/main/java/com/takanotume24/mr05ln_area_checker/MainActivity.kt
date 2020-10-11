@@ -82,7 +82,6 @@ class MainActivity : AppCompatActivity() {
                                 else -> dialog.setMessage(ex.localizedMessage)
                             }
                             dialog.show()
-                            println(ex)
                         }
                         is Result.Success -> {
                             val data =
@@ -110,14 +109,12 @@ class MainActivity : AppCompatActivity() {
                                     get_area_text.text = "判別不能 earfcn=${earfcn}"
                                 }
                             }
-                            println(data.first())
                         }
                     }
                 }
             http_async.join()
 
         } catch (e: Exception) {
-            print(e.localizedMessage)
         }
     }
 
